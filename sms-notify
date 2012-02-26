@@ -1,0 +1,27 @@
+#!/bin/bash
+ 
+while true;
+  do query=`ssh mobile@75.102.94.249 \
+           "sqlite3 /var/mobile/Library/SMS/sms.db '
+            ATTACH DATABASE \"/var/mobile/Library/AddressBook/AddressBook.sqlitedb\" AS sms;
+            SELECT contact.first, contact.last, message.text
+              FROM message LEFT JOIN (
+                SELECT ABMultiValue.value,ABPerson.first,ABPerson.last
+                  FROM ABPerson JOIN ABMultiValue
+                  ON ABmultiValue.record_id=ABPerson.ROWID ) contact
+                ON contact.value=SUBSTR(message.address,2,LENGTH(message.address) )
+                where message.read=0 AND message.flags=2;
+             ;'"`
+    if [ -n "$query" ]
+    then
+    IFS=$'\n'
+    for line in $query
+      do
+        record=(`echo $line | tr "|" "\n"`)
+        echo "${record[0]} ${record[1]} said '${record[2]}'"
+        python2 -c "import pynotify as p; p.init('sms-notify'); n = p.Notification('${record[0]} ${record[1]}','${record[2]}', '/home/dylan/scripts/images/sms.png'); n.show();";
+    done;
+    unset query;
+    fi;
+  sleep 10s;
+done;
