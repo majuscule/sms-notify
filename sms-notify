@@ -1,7 +1,10 @@
 #!/bin/bash
+
+IPHONE_INET_IP="75.102.94.249"
+POLL_DELAY="10s"
  
 while true;
-  do query=`ssh mobile@75.102.94.249 \
+  do query=`ssh "mobile@$IPHONE_INET_IP" \
            "sqlite3 /var/mobile/Library/SMS/sms.db '
             ATTACH DATABASE \"/var/mobile/Library/AddressBook/AddressBook.sqlitedb\" AS sms;
             SELECT contact.first, contact.last, message.text
@@ -23,5 +26,5 @@ while true;
     done;
     unset query;
     fi;
-  sleep 10s;
+  sleep "$POLL_DELAY";
 done;
