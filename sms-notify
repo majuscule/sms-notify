@@ -19,7 +19,7 @@ while true;
       do
         record=(`echo $line | tr "|" "\n"`)
         echo "${record[0]} ${record[1]} said '${record[2]}'"
-        python2 -c "import pynotify as p; p.init('sms-notify'); n = p.Notification('${record[0]} ${record[1]}','${record[2]}', '/home/dylan/scripts/images/sms.png'); n.show();";
+        notify-send -i ~/scripts/sms-notify/sms.png "${record[0]} ${record[1]} said '${record[2]}'"
     done;
     unset query;
     fi;
